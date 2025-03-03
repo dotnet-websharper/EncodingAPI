@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Encoding API Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="Content/WebSharper.Encoding.Sample.css" />
+    <style>
+        /* Don't show the not-yet-loaded templates */
+        [ws-template], [ws-children-template] { display: none; }
+    </style>
+    <script type="module" src="Content/WebSharper.Encoding.Sample.head.js"></script>
+</head>
+<body>
+    <h1>Encoding API Demo</h1>
+    <div id="main" ws-children-template="Main">
+        <h2>UTF-8 Encoding & Decoding</h2>
+        <input type="text" id="utf8Input" placeholder="Enter text" ws-var="Utf8Input">
+        <button ws-onclick="EncodeUTF8">Encode</button>
+        <button ws-onclick="DecodeUTF8">Decode</button>
+        <p id="utf8Encoded">${Utf8Encoded}</p>
+        <p id="utf8Decoded">${Utf8Decoded}</p>
+    </div>
+    <script type="module" src="Content/WebSharper.Encoding.Sample.min.js"></script>
+</body>
+</html>
