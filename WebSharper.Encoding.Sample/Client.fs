@@ -9,68 +9,55 @@ open WebSharper.Encoding
 
 [<JavaScript>]
 module Client =
-    // The templates are loaded from the DOM, so you just can edit index.html
-    // and refresh your browser, no need to recompile unless you add or remove holes.
+    // The template is loaded from the DOM, so you can edit index.html and refresh
+    // the browser without recompiling, unless you add or remove holes.
     type IndexTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
+    /// Format raw UTF-8 bytes as a comma-separated list for display.
+    let private formatBytes (bytes: Uint8Array) =
+        Seq.init bytes.Length (fun i -> string (bytes.Get(i)))
+        |> String.concat ", "
+
     let utf8Input = Var.Create ""
-    let utf8Encoded = Var.Create "Waiting for input..."
-    let utf8Decoded = Var.Create ""
 
-    // UTF-8 Encoding Function
+    // Keep the raw encoded bytes so decoding does not have to parse a display string.
+    let encodedBytes : Var<Uint8Array option> = Var.Create None
+
+    let utf8Encoded : View<string> =
+        encodedBytes.View.Map(fun (bytes: Uint8Array option) ->
+            match bytes with
+            | None -> "Waiting for input..."
+            | Some b -> sprintf "UTF-8 encoded (%d bytes): %s" b.Length (formatBytes b))
+
+    let utf8Decoded = Var.Create "Waiting for decode..."
+
+    let decoderInfo =
+        let encoder = new TextEncoder()
+        let decoder = new TextDecoder()
+        sprintf "TextEncoder.encoding = %s | TextDecoder.encoding = %s | fatal = %b | ignoreBOM = %b"
+            encoder.Encoding decoder.Encoding decoder.Fatal decoder.IgnoreBOM
+
     let encodeUTF8 () =
-        promise {
-            let text = utf8Input.Value
-            let encoder = new TextEncoder()
-            let encoded = encoder.Encode(text)
+        let encoder = new TextEncoder()
+        let bytes = encoder.Encode(utf8Input.Value)
+        encodedBytes.Value <- Some bytes
+        utf8Decoded.Value <- "Waiting for decode..."
 
-            // Convert Uint8Array to comma-separated string
-            let encodedString =
-                Seq.init encoded.Length (fun i -> encoded.Get(i).ToString())
-                |> String.concat ", "
-
-            utf8Encoded.Value <- $"UTF-8 Encoded: {encodedString}"
-        }
-
-    // UTF-8 Decoding Function
     let decodeUTF8 () =
-        promise {
-            let encodedText =
-                utf8Encoded.Value.Split([| ':' |])
-                |> Array.tryItem 1 
-                |> Option.defaultValue ""
-
-            if encodedText.Trim() = "" then ()
-            else
-                let encodedArray =
-                    encodedText.Split([| ',' |])
-                    |> Array.map byte
-                    |> Uint8Array
-
-                let decoder = new TextDecoder()
-                let decodedText = decoder.Decode(encodedArray)
-
-                utf8Decoded.Value <- $"UTF-8 Decoded: {decodedText}"
-        }
+        match encodedBytes.Value with
+        | None -> utf8Decoded.Value <- "Nothing to decode yet."
+        | Some bytes ->
+            let decoder = new TextDecoder()
+            utf8Decoded.Value <- decoder.Decode(bytes)
 
     [<SPAEntryPoint>]
     let Main () =
-
         IndexTemplate.Main()
             .Utf8Input(utf8Input)
-            .Utf8Encoded(utf8Encoded.V)
+            .Utf8Encoded(utf8Encoded)
             .Utf8Decoded(utf8Decoded.V)
-            .EncodeUTF8(fun _ -> 
-                async { 
-                    do! encodeUTF8() |> Promise.AsAsync 
-                } 
-                |> Async.StartImmediate
-            )
-            .DecodeUTF8(fun _ -> 
-                async { 
-                    do! decodeUTF8() |> Promise.AsAsync 
-                } 
-                |> Async.StartImmediate
-            )
+            .DecoderInfo(decoderInfo)
+            .EncodeUTF8(fun _ -> encodeUTF8())
+            .DecodeUTF8(fun _ -> decodeUTF8())
             .Doc()
         |> Doc.RunById "main"

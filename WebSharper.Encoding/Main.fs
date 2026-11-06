@@ -23,17 +23,17 @@ module Definition =
         Pattern.Config "DecodeOptions" {
             Required = []
             Optional = [
-                "stream", T<bool>
+                ("stream", T<bool>)
             ]
         }
 
     let EncodeIntoResult = 
         Pattern.Config "EncodeIntoResult" {
-            Required = []
-            Optional = [
+            Required = [
                 "read", T<int>
                 "written", T<int>
             ]
+            Optional = []
         }
 
     let TextDecoder =
