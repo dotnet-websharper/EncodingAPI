@@ -16,11 +16,15 @@ The Encoding API is **Baseline / Widely available** across modern browsers (see 
 
 ## Live demos
 
+**Try it live:** [Open the sample in your browser](https://dotnet-websharper.github.io/EncodingAPI/)
+
+![Encoding API sample](docs/encoding-sample.png)
+
+The sample doubles as the binding's [test case](#running-the-sample): it encodes a string to UTF-8 bytes and decodes them back, showing the byte values and round-trip result.
+
 - **GitHub Pages sample:** <https://dotnet-websharper.github.io/EncodingAPI/>
 - **Source repository:** <https://github.com/dotnet-websharper/EncodingAPI>
 - **WebSharper bindings:** <https://websharper.com/bindings>
-
-![Encoding API sample](docs/encoding-sample.png)
 
 ## Installation
 
