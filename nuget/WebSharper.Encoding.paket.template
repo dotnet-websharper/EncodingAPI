@@ -15,6 +15,7 @@ tags
     Web JavaScript F# C#
 files
     ../WebSharper.Encoding/bin/Release/netstandard2.0/WebSharper.Encoding.dll ==> lib/netstandard2.0
+    ../WebSharper.Encoding/bin/Release/netstandard2.0/WebSharper.Encoding.websharper ==> lib/netstandard2.0
     ../WebSharper.Encoding/bin/Release/netstandard2.0/WebSharper.Encoding.xml ==> lib/netstandard2.0
 dependencies
         WebSharper ~> LOCKEDVERSION:[3]
